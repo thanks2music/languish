@@ -1,6 +1,23 @@
 import { useGlobal } from "context";
+import { dates } from "parsedData";
 import React, { useState } from "react";
 import "styles/Header.css";
+
+// Innovation Graph publishes a quarter about four months after it ends, so the
+// newest quarter is normally under seven months old. Past this, an update was
+// probably missed (for example, the scheduled workflow was disabled).
+const staleAfterMonths = 9;
+const latestQuarter = dates[dates.length - 1];
+
+function monthsSinceQuarterEnd(quarter: string, now: Date): number {
+  const [year, q] = quarter.split("Q").map(Number);
+  // Month index right after the quarter ends (Q4 rolls into next January).
+  const endMonth = year * 12 + q * 3;
+  return now.getUTCFullYear() * 12 + now.getUTCMonth() - endMonth;
+}
+
+const isStale =
+  monthsSinceQuarterEnd(latestQuarter, new Date()) >= staleAfterMonths;
 
 const Header = () => {
   const global = useGlobal();
@@ -84,7 +101,17 @@ const Header = () => {
           · data:{" "}
           <a href="https://github.com/github/innovationgraph">
             GitHub Innovation Graph
-          </a>
+          </a>{" "}
+          (through {latestQuarter})
+          {isStale && (
+            <span
+              className="stale"
+              title="Newer quarters may be available. The scheduled data update may have stopped."
+            >
+              {" "}
+              · may be out of date
+            </span>
+          )}
         </div>
       </h2>
       <div className="spread"></div>

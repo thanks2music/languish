@@ -1,0 +1,120 @@
+name: Update data
+
+# Once a month, download the latest GitHub Innovation Graph data and open a
+# pull request if it changed. Innovation Graph publishes a new quarter about
+# four months after the quarter ends, so most runs find nothing new.
+#
+# The pull request is created with GITHUB_TOKEN, which requires the repository
+# setting "Allow GitHub Actions to create and approve pull requests". Checks on
+# that pull request wait for "Approve workflows to run" before they start, so
+# this workflow builds the site itself before opening the pull request.
+
+on:
+  schedule:
+    # 03:17 UTC on the 5th; GitHub recommends avoiding the start of the hour.
+    - cron: "17 3 5 * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+defaults:
+  run:
+    # An explicit bash shell runs with -eo pipefail, so a failing
+    # `bun run update-data | tee` fails the step.
+    shell: bash
+
+env:
+  BRANCH_PREFIX: data/innovation-graph-
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: read
+    outputs:
+      open: ${{ steps.open.outputs.count }}
+    steps:
+      - name: Count open update pull requests
+        id: open
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          open=$(gh pr list --state open --limit 1000 --json headRefName \
+            --jq "[.[] | select(.headRefName | startswith(\"$BRANCH_PREFIX\"))] | length")
+          echo "count=$open" >> "$GITHUB_OUTPUT"
+          if [ "$open" != "0" ]; then
+            echo "::notice::An update pull request is already open; skipping."
+          fi
+
+  update:
+    needs: check
+    if: needs.check.outputs.open == '0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Update data
+        run: bun run update-data | tee "$RUNNER_TEMP/update-data.log"
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if git diff --quiet -- scripts/data/gh-pushers.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No new Innovation Graph data."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "latest=$(jq -r '.[-1] | "\(.year)Q\(.quarter)"' scripts/data/gh-pushers.json)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build
+        if: steps.diff.outputs.changed == 'true'
+        run: bun run build
+
+      - name: Open pull request
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LATEST: ${{ steps.diff.outputs.latest }}
+        run: |
+          branch="${BRANCH_PREFIX}$(date -u +%Y-%m-%d)-${GITHUB_RUN_ID}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add scripts/data/gh-pushers.json
+          git commit -m "data: Update Innovation Graph data (through $LATEST)"
+          git push origin "$branch"
+          {
+            echo "Automated update from \`bun run update-data\` (latest quarter: $LATEST)."
+            echo
+            echo "The site built successfully with this data in the workflow run that opened this pull request."
+            echo "Select **Approve workflows to run** to run the checks here, then merge to deploy."
+            echo
+            echo '```'
+            cat "$RUNNER_TEMP/update-data.log"
+            echo '```'
+          } > "$RUNNER_TEMP/body.md"
+          gh pr create --base main --head "$branch" \
+            --title "data: Update Innovation Graph data (through $LATEST)" \
+            --body-file "$RUNNER_TEMP/body.md"
