@@ -44,5 +44,6 @@
   },
   "overrides": {
     "@types/babel__traverse": "7.11.0"
-  }
+  },
+  "packageManager": "bun@1.4.4"
 }
