@@ -22,31 +22,13 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-stack-overflow:before {
-  content: "\e900";
-}
-.icon-github-alt:before {
-  content: "\e901";
-}
 .icon-github:before {
   content: "\e902";
 }
 .icon-google:before {
   content: "\e903";
 }
-.icon-wikipedia-w:before {
-  content: "\e904";
-}
-.icon-reddit-alien:before {
-  content: "\e905";
-}
 .icon-close:before {
-  content: "\e906";
-}
-.icon-remove:before {
-  content: "\e906";
-}
-.icon-times:before {
   content: "\e906";
 }
 .icon-search:before {
@@ -57,16 +39,4 @@
 }
 .icon-trending-up:before {
   content: "\e909";
-}
-.icon-google1:before {
-  content: "\ea88";
-}
-.icon-github1:before {
-  content: "\eab0";
-}
-.icon-wikipedia:before {
-  content: "\eac8";
-}
-.icon-stackoverflow:before {
-  content: "\ead0";
 }
