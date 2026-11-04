@@ -2,7 +2,8 @@
 import tables from "data.json";
 import { murmur3 } from "murmurhash-js";
 
-// Share (%) of GitHub Innovation Graph pushers for the quarter.
+// GitHub Innovation Graph pushers: a count in data.json, which normalize()
+// turns into a percentage of the quarter's summed language counts.
 export interface Metrics {
   pushers: number;
 }
