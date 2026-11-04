@@ -28,7 +28,7 @@ Read it with these caveats:
 
 The [Update data](.github/workflows/update-data.yml) workflow runs on the 5th of every month (and on demand with `gh workflow run update-data.yml`). When Innovation Graph has new data, it builds the site and opens a pull request. Review it, select **Approve workflows to run** so the checks run (pull requests created with `GITHUB_TOKEN` wait for approval), and merge to deploy.
 
-The workflow needs the repository setting **Allow GitHub Actions to create and approve pull requests**.
+The workflow needs the repository setting **Allow GitHub Actions to create and approve pull requests**. If you close an update pull request without merging it, the next scheduled run opens a new one; to retry sooner, run `gh workflow run update-data.yml --repo thanks2music/languish`.
 
 GitHub disables scheduled workflows in a public repository after 60 days without activity, and new quarters arrive only about every three months. If updates stop, the header shows "may be out of date" once the newest quarter is nine months old. Re-enable the workflow with:
 
