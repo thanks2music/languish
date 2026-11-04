@@ -2,27 +2,9 @@
 import tables from "data.json";
 import { murmur3 } from "murmurhash-js";
 
-export interface CoreMetrics {
-  issues: number;
-  pulls: number;
-  stars: number;
-  soQuestions: number;
-}
-
-// TODO Weed out bots somehow. Maybe look for users with most GH events???
-export const defaultWeights: CoreMetrics = Object.freeze({
-  issues: 0, // bogus repos maybe on bots seem to be affecting this
-  pulls: 0, // bots affect some langauges more than others
-  stars: 1,
-  soQuestions: 1,
-});
-
-export type CoreMetricTexts = {
-  [key in keyof CoreMetrics]: string;
-};
-
-export interface Metrics extends CoreMetrics {
-  mean: number;
+// Share (%) of GitHub Innovation Graph pushers for the quarter.
+export interface Metrics {
+  pushers: number;
 }
 
 interface DateMetrics extends Metrics {
@@ -31,13 +13,6 @@ interface DateMetrics extends Metrics {
 
 interface Entry extends DateMetrics {
   name: string;
-}
-
-export interface Translation {
-  key: string;
-  reddit: string;
-  stackoverflow: string;
-  wikipedia: string;
 }
 
 type Keyed<Item> = {
@@ -50,12 +25,6 @@ interface Data {
   entries: Keyed<Entry[]>;
   sums: Keyed<DateMetrics>;
 }
-
-export type MeanParams = {
-  entries: Keyed<Entry[]>;
-  sums: Keyed<DateMetrics>;
-  weights: CoreMetrics;
-};
 
 function keepFirst<Item>(keyed: Keyed<Item[]>): Keyed<Item> {
   return Object.assign(
@@ -142,40 +111,6 @@ function normalize({ entries, sums }: Data) {
   }
 }
 
-export function parseWeights(texts: CoreMetricTexts): CoreMetrics {
-  return Object.fromEntries(
-    Object.entries(texts).map(([key, value]) => {
-      let parsed = parseFloat(value);
-      if (isNaN(parsed)) {
-        parsed = 0;
-      }
-      return [key, parsed];
-    })
-  ) as unknown as Metrics;
-}
-
-export function putMean({ entries, sums, weights }: MeanParams) {
-  const keys = Object.keys(weights) as (keyof CoreMetrics)[];
-  const weightTotal = sumOf(Object.values(weights));
-  for (const points of Object.values(entries)) {
-    for (const point of points) {
-      // TODO Use sums param to unweight missing values?
-      const sum = sumOf(keys.map((key) => weights[key] * point[key]));
-      point.mean = sum / weightTotal;
-    }
-  }
-}
-
-export function stringifyWeights(numbers: CoreMetrics): CoreMetricTexts {
-  return Object.fromEntries(
-    Object.entries(numbers).map(([key, value]) => [key, value.toString()])
-  ) as unknown as CoreMetricTexts;
-}
-
-function sumOf(nums: number[]): number {
-  return nums.reduce((x, y) => x + y, 0);
-}
-
 interface Table<Key extends keyof Item, Item> {
   keys: Key[];
   rows: Item[Key][][];
@@ -209,13 +144,6 @@ function chooseColor(name: string) {
   return formatColor({ hue, saturation });
 }
 
-function filterDate<Metrics extends DateMetrics>(items: Metrics[]): Metrics[] {
-  // This hard codes to the quarter when our GitHub data starts.
-  // Stack Overflow data starts earlier, but I don't want to rely on that
-  // independently.
-  return items.filter((item) => item.date >= "2012Q1");
-}
-
 function formatColor(color: Color) {
   return `hsl(${color.hue}, ${color.saturation}%, 70%)`;
 }
@@ -223,13 +151,13 @@ function formatColor(color: Color) {
 let sums = keepFirst(
   keyOn({
     key: "date",
-    items: filterDate(tableToItems(tables.sums as any) as DateMetrics[]),
+    items: tableToItems(tables.sums as any) as DateMetrics[],
   })
 );
 let dates = Object.keys(sums).sort();
 let entries = keyOn({
   key: "name",
-  items: filterDate(tableToItems(tables.items as any) as Entry[]),
+  items: tableToItems(tables.items as any) as Entry[],
 });
 let colors = Object.assign(
   {},
@@ -238,19 +166,11 @@ let colors = Object.assign(
   })
 ) as { [name: string]: string };
 let data = { colors, dates, entries, sums };
-// Normalize and mean in advance.
+// Normalize in advance.
 normalize(data);
-putMean({ entries: data.entries, sums: data.sums, weights: defaultWeights });
 // Fill in missing data here.
 // The idea is that this code is smaller than the compressed repeated zeros
 // would be in the preprocessed data -- and not too expensive to compute.
 fillDates(data);
 
-let translations = keepFirst(
-  keyOn({
-    key: "key",
-    items: tableToItems(tables.translations as any) as Translation[],
-  })
-);
-
-export { colors, dates, entries, sums, translations };
+export { colors, dates, entries, sums };

@@ -99,13 +99,6 @@ const Plot = () => {
     });
   }, []);
 
-  // reset the data when metrics change
-  useEffect(() => {
-    if (chart.current?.data.datasets) {
-      chart.current.data.datasets = [];
-    }
-  }, [global.metric, global.weights]);
-
   // react to changed in the global state
   useEffect(
     () => {
@@ -134,7 +127,6 @@ const Plot = () => {
       global.selectedLangs.size,
       // eslint-disable-next-line react-hooks/exhaustive-deps
       ...global.selectedLangs,
-      global.weights,
     ]
   );
 

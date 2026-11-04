@@ -1,5 +1,4 @@
 import { useGlobal } from "context";
-import { parseWeights } from "parsedData";
 import React, { useState } from "react";
 import "styles/Header.css";
 
@@ -10,14 +9,6 @@ const Header = () => {
   const copyLink = () => {
     const params = new URLSearchParams();
     const names = [...global.selectedLangs].map((name) => name.toLowerCase());
-    params.append("y", global.metric);
-    if (global.metric === "mean") {
-      const customWeights = new URLSearchParams();
-      Object.entries(parseWeights(global.weights)).forEach(([key, value]) => {
-        customWeights.append(key, String(value));
-      });
-      params.append("weights", customWeights.toString());
-    }
     if (global.scale !== "linear") {
       params.append("yscale", global.scale);
     }
@@ -44,7 +35,7 @@ const Header = () => {
     <div className="header">
       <div>
         <a
-          href="https://github.com/tjpalmer/languish"
+          href="https://github.com/thanks2music/languish"
           className="github-corner"
           title="View source and project info"
         >
@@ -82,16 +73,17 @@ const Header = () => {
         <a href=".">Languish</a>
       </h1>
       <h2>
-        <div title="Current data from public GitHub projects">
+        <div title="Share of developers who pushed to a repository containing each language">
           Programming Language Trends
         </div>
         <div>
-          ... for more,{" "}
-          <a
-            href="https://www.youtube.com/channel/UCS4FAVeYW_IaZqAbqhlvxlA"
-            title="Context Free - YouTube channel about programming languages"
-          >
-            subscribe to Context Free
+          Fork of{" "}
+          <a href="https://github.com/tjpalmer/languish">
+            Languish by tjpalmer
+          </a>{" "}
+          · data:{" "}
+          <a href="https://github.com/github/innovationgraph">
+            GitHub Innovation Graph
           </a>
         </div>
       </h2>
