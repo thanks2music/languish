@@ -1,16 +1,16 @@
 import { Chart, ChartColor, ChartDataSets } from "chart.js";
 import { Scale, useGlobal } from "context";
 import { trimTrailingFloat } from "helpers";
-import { colors, dates, entries, Metrics } from "parsedData";
+import { colors, dates, entries } from "parsedData";
 import React, { useEffect, useLayoutEffect, useRef } from "react";
 
-function makeDataset(name: string, metric: keyof Metrics): ChartDataSets {
+function makeDataset(name: string): ChartDataSets {
   const borderColor = colors[name];
 
   return {
     borderColor,
     cubicInterpolationMode: "monotone",
-    data: entries[name].map((entry) => entry[metric]),
+    data: entries[name].map((entry) => entry.pushers),
     fill: false,
     hoverBorderColor: borderColor,
     hoverBorderWidth: 6,
@@ -99,13 +99,6 @@ const Plot = () => {
     });
   }, []);
 
-  // reset the data when metrics change
-  useEffect(() => {
-    if (chart.current?.data.datasets) {
-      chart.current.data.datasets = [];
-    }
-  }, [global.metric, global.weights]);
-
   // react to changed in the global state
   useEffect(
     () => {
@@ -121,7 +114,7 @@ const Plot = () => {
       // add missing data
       for (const name of global.selectedLangs) {
         if (!available.has(name)) {
-          chart.current.data.datasets.push(makeDataset(name, global.metric));
+          chart.current.data.datasets.push(makeDataset(name));
         }
       }
 
@@ -130,11 +123,9 @@ const Plot = () => {
     // rule is disabled because global.selectedLangs never changes shallowly
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
-      global.metric,
       global.selectedLangs.size,
       // eslint-disable-next-line react-hooks/exhaustive-deps
       ...global.selectedLangs,
-      global.weights,
     ]
   );
 

@@ -2,22 +2,22 @@
   "name": "languish",
   "version": "0.0.1",
   "description": "plot programming language statistics",
-  "homepage": "https://tjpalmer.github.io/languish",
+  "homepage": "https://thanks2music.github.io/languish",
   "scripts": {
-    "start": "npm run build-merge && cra-preact start",
-    "build": "npm run build-merge && cra-preact build",
-    "build-merge": "tsc --project scripts && npm run merge",
-    "format": "prettier --write src/ scripts/src/",
-    "merge": "node scripts/bin/merge.js > src/data.json"
+    "start": "bun run merge && NODE_OPTIONS=--openssl-legacy-provider cra-preact start",
+    "build": "bun run merge && NODE_OPTIONS=--openssl-legacy-provider cra-preact build",
+    "merge": "bun scripts/src/merge.ts > src/data.json",
+    "update-data": "bun scripts/src/update-data.ts",
+    "format": "prettier --write src/ scripts/src/"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tjpalmer/languish.git"
+    "url": "git+https://github.com/thanks2music/languish.git"
   },
   "author": "Tom",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/tjpalmer/languish/issues"
+    "url": "https://github.com/thanks2music/languish/issues"
   },
   "devDependencies": {
     "@types/chart.js": "^2.9.16",
@@ -41,5 +41,9 @@
   ],
   "eslintConfig": {
     "extends": "react-app"
-  }
+  },
+  "overrides": {
+    "@types/babel__traverse": "7.11.0"
+  },
+  "packageManager": "bun@1.4.4"
 }

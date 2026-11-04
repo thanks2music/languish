@@ -1,63 +1,47 @@
-# Languish &mdash; Programming Language Trends
+# Languish &mdash; Programming Language Trends (GitHub Innovation Graph fork)
 
-## Links
+**Live site:** https://thanks2music.github.io/languish/
 
-- [Languish live site](https://tjpalmer.github.io/languish/)
-  - Try it out!
-- [Context Free video channel](https://www.youtube.com/channel/UCS4FAVeYW_IaZqAbqhlvxlA), for which this tool was originally designed
-  - *Subscribe if you like programming languages!*
+This is a fork of [tjpalmer/languish](https://github.com/tjpalmer/languish). The upstream site stopped at 2025Q2. This fork plots official GitHub data from the [GitHub Innovation Graph](https://github.com/github/innovationgraph) instead, so it can be kept current.
 
+## Why this fork changed data sources
+
+- **GH Archive**, which upstream used for GitHub stars, pull requests, and issues, has been losing events since late May 2025, and by 2026 it captures only a fraction of public activity (see [igrigorik/gharchive.org#310](https://github.com/igrigorik/gharchive.org/issues/310), [#320](https://github.com/igrigorik/gharchive.org/issues/320), and [#326](https://github.com/igrigorik/gharchive.org/issues/326)).
+- **Stack Overflow** now gets only about a thousand new questions a month, so its tag counts no longer reflect language use.
+
+## The metric
+
+The y axis is **GitHub Pushers**. A language's count is the number of unique developers who made at least one `git push` to a public repository containing that language ([datasheet](https://github.com/github/innovationgraph/blob/main/docs/datasheet.md)), summed over the economies in `data/languages.csv`. The `EU` rows are left out because each one is the sum of the 27 member states, which are also listed. Only languages classified as `programming` or `markup` are included.
+
+The plotted value is each language's count as a percentage of all languages' counts that quarter. A developer who pushes to repositories in several languages is counted once for each, so the denominator is not the number of developers.
+
+Read it with these caveats:
+
+- A repository counts for **every** language it contains, not just its main one. Languages common in supporting files, such as HTML, CSS, Shell, Dockerfile, and Makefile, rank high, and JavaScript ranks above TypeScript. Rankings by contributors, such as [GitHub Octoverse](https://github.blog/news-insights/octoverse/), can differ.
+- Data starts in **2020Q1**. Earlier quarters are not available.
+- GitHub withholds a figure when fewer than 100 developers in an economy pushed to that language in the quarter, so small languages are undercounted the most.
+- New quarters are published about four months after the quarter ends.
+
+## Updating the data
+
+```sh
+bun install
+bun run update-data   # downloads languages.csv and rewrites scripts/data/gh-pushers.json
+bun run build         # or `bun run start` for a dev server
+```
+
+Commit the updated `scripts/data/gh-pushers.json`. Merging to `main` deploys the site to GitHub Pages.
 
 ## Features
 
-- Currently provides data from GitHub and Stack Overflow
-- Measures current activity/velocity rather than total past mass
-- Defaults to a simple "Mean Score" of other percentages
-  - I couldn't tell which individual metric was best
-  - I don't want a fancy equation that allows me just to get the results I want
-- Can change y axis metric without changing language selections
-- Provides metrics for many languages
-- Links to GitHub topics and trending repos by language
-- Can permalink to Languish configured selections and metric
-- Less than 250 KB (including data) and only 6 HTTP requests
-- *Limitation:* Works on my phone, but not carefully tailored for mobile
-
+- Measures current activity per quarter rather than total past mass
+- Linear or log y axis
+- Links to GitHub topics and trending repositories by language
+- Permalinks to the selected languages and scale
 
 ## Credits
 
-- Uses icons from [Feather Icons](https://feathericons.com/) and [Font Awesome](https://fontawesome.com/), via [IcoMoon](https://icomoon.io/)
-- Uses dependencies as specified in the package.json file
-- Please see their respective licenses
-- Previously used data from [GitHut 2.0](https://madnight.github.io/githut/) and still bases some queries and analysis from here
-
-
-## Additional notes
-
-- [Adding a language to GitHub](https://github.com/github/linguist/blob/master/CONTRIBUTING.md#adding-a-language)
-- Stack Overflow tag query:
-  ```sql
-  select
-    tags,
-    extract(year from creation_date) year,
-    extract(quarter from creation_date) quarter,
-    count(*) count
-  from `bigquery-public-data.stackoverflow.posts_questions`
-  group by tags, year, quarter
-  order by count(*) desc
-  ```
-- Also: https://data.stackexchange.com/ (with 50k row limit but updates sooner)
-  ```sql
-  SELECT
-    t.TagName,
-    DatePart(quarter, p.LastActivityDate) AS q,
-    Year(p.LastActivityDate) AS y, 
-    COUNT(p.Id) As NumPosts
-  FROM Posts p
-  JOIN PostTags pt ON p.Id = pt.PostId
-  JOIN Tags t ON t.Id = pt.TagId
-  WHERE Year(p.LastActivityDate) = 2022 AND DatePart(quarter, p.LastActivityDate) = 4
-  GROUP BY DatePart(quarter, p.LastActivityDate), Year(p.LastActivityDate), t.TagName
-  ORDER BY y, q, NumPosts DESC
-  ```
-- https://subredditstats.com/api/subreddit?name=Python
-- https://wikimedia.org/api/rest_v1/
+- Original project: [Languish](https://github.com/tjpalmer/languish) by Tom Palmer (ISC license, see [LICENSE](LICENSE))
+- Data: [GitHub Innovation Graph](https://github.com/github/innovationgraph) (CC0-1.0)
+- Icons from [Feather Icons](https://feathericons.com/) and [Font Awesome](https://fontawesome.com/), via [IcoMoon](https://icomoon.io/)
+- Other dependencies are listed in package.json; see their respective licenses

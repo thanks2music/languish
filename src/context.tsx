@@ -1,16 +1,6 @@
 import { LangItemProps } from "components/LangItem";
 import { objectEntries } from "helpers";
-import {
-  colors,
-  CoreMetricTexts,
-  defaultWeights,
-  entries,
-  Metrics,
-  parseWeights,
-  putMean,
-  stringifyWeights,
-  sums,
-} from "parsedData";
+import { colors, entries } from "parsedData";
 import React, { useContext } from "react";
 
 export type Scale = "linear" | "log";
@@ -19,7 +9,6 @@ const defaultState = {
   searchTerm: "",
   trimmed: false,
   metricsAreExpanded: false,
-  metric: "mean" as keyof Metrics,
   scale: "linear" as Scale,
   langList: [] as Omit<
     LangItemProps,
@@ -27,7 +16,6 @@ const defaultState = {
   >[],
   selectedLangs: new Set<string>(),
   highlighted: undefined as string | undefined,
-  weights: stringifyWeights(defaultWeights),
 };
 
 // react context isnt very type-friendly, need to declare noops
@@ -37,9 +25,7 @@ const noopFuncs = {
   toggleMetricsAreExpanded() {},
   emptyList() {},
   resetList() {},
-  changeMetric(metric: keyof Metrics) {},
   changeScale(scale: Scale) {},
-  changeWeight(key: keyof Metrics, value: string) {},
   toggleSelected(name: string) {},
   setHighlighted(name?: string) {},
 };
@@ -114,21 +100,8 @@ export class GlobalProvider extends React.Component<{}, typeof defaultState> {
     wipeHash();
   };
 
-  changeMetric = (metric: keyof Metrics) => {
-    this.setState({ metric }, this.constructList);
-    wipeHash();
-  };
-
   changeScale = (scale: Scale) => {
     this.setState({ scale });
-    wipeHash();
-  };
-
-  changeWeight = (key: keyof Metrics, value: string) => {
-    this.setState(
-      { weights: { ...this.state.weights, [key]: value } },
-      this.processChangedWeights
-    );
     wipeHash();
   };
 
@@ -156,9 +129,7 @@ export class GlobalProvider extends React.Component<{}, typeof defaultState> {
         toggleMetricsAreExpanded: this.toggleMetricsAreExpanded,
         emptyList: this.emptyList,
         resetList: this.resetList,
-        changeMetric: this.changeMetric,
         changeScale: this.changeScale,
-        changeWeight: this.changeWeight,
         toggleSelected: this.toggleSelected,
         setHighlighted: this.setHighlighted,
       }}
@@ -172,7 +143,7 @@ export class GlobalProvider extends React.Component<{}, typeof defaultState> {
       const counts = objectEntries(entries)
         .map(([name, stats]) => ({
           name,
-          value: stats.slice(-offset)[0][this.state.metric],
+          value: stats.slice(-offset)[0].pushers,
         }))
         .sort((a, b) => b.value - a.value);
 
@@ -231,18 +202,8 @@ export class GlobalProvider extends React.Component<{}, typeof defaultState> {
 
     const params = new URLSearchParams(window.location.hash.slice(1));
 
-    // set the url's metric only if it exists
-    const metric = params.get("y");
-    if (metric) {
-      this.changeMetric(metric as keyof Metrics);
-    }
-    const weightsText = params.get("weights");
-    if (weightsText) {
-      const weights = Object.fromEntries(
-        new URLSearchParams(weightsText)
-      ) as CoreMetricTexts;
-      this.setState({ weights }, this.processChangedWeights);
-    }
+    // "y" and "weights" from upstream Languish links are ignored, because
+    // this fork has a single metric.
     const scale = params.get("yscale");
     if (scale) {
       this.changeScale(scale as Scale);
@@ -264,11 +225,6 @@ export class GlobalProvider extends React.Component<{}, typeof defaultState> {
     setTimeout(() => (rememberHash = false), 0);
 
     this.setState({ trimmed: true });
-  }
-
-  private processChangedWeights() {
-    putMean({ entries, sums, weights: parseWeights(this.state.weights) });
-    this.constructList();
   }
 }
 
