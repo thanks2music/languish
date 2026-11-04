@@ -7,6 +7,7 @@
     "start": "bun run merge && NODE_OPTIONS=--openssl-legacy-provider cra-preact start",
     "build": "bun run merge && NODE_OPTIONS=--openssl-legacy-provider cra-preact build",
     "merge": "bun scripts/src/merge.ts > src/data.json",
+    "update-data": "bun scripts/src/update-data.ts",
     "format": "prettier --write src/ scripts/src/"
   },
   "repository": {
