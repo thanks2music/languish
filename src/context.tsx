@@ -1,6 +1,6 @@
 import { LangItemProps } from "components/LangItem";
 import { objectEntries } from "helpers";
-import { colors, entries, Metrics } from "parsedData";
+import { colors, entries } from "parsedData";
 import React, { useContext } from "react";
 
 export type Scale = "linear" | "log";
@@ -9,7 +9,6 @@ const defaultState = {
   searchTerm: "",
   trimmed: false,
   metricsAreExpanded: false,
-  metric: "pushers" as keyof Metrics,
   scale: "linear" as Scale,
   langList: [] as Omit<
     LangItemProps,
@@ -144,7 +143,7 @@ export class GlobalProvider extends React.Component<{}, typeof defaultState> {
       const counts = objectEntries(entries)
         .map(([name, stats]) => ({
           name,
-          value: stats.slice(-offset)[0][this.state.metric],
+          value: stats.slice(-offset)[0].pushers,
         }))
         .sort((a, b) => b.value - a.value);
 

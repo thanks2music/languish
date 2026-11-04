@@ -1,22 +1,13 @@
 import { useGlobal, Scale } from "context";
 import { clx, objectEntries } from "helpers";
-import { Metrics } from "parsedData";
 import React from "react";
 
-type MetricItem = {
-  info?: string;
-  label: string;
-};
+const metricLabel = "GitHub Pushers";
+const metricInfo =
+  "Each language's share of the quarter's summed pusher counts. A developer is counted once per language they pushed to (GitHub Innovation Graph).";
 
 const Metric = () => {
   const global = useGlobal();
-
-  const items: { [k in keyof Metrics]: MetricItem } = {
-    pushers: {
-      label: "GitHub Pushers",
-      info: "Each language's share of the quarter's summed pusher counts. A developer is counted once per language they pushed to (GitHub Innovation Graph).",
-    },
-  };
 
   // map of available scales to human readable strings
   const scales: { [k in Scale]: string } = {
@@ -33,9 +24,9 @@ const Metric = () => {
           onClick={global.toggleMetricsAreExpanded}
         >
           <span className="yLabelArrow"></span>{" "}
-          <span className="yLabelText" title={items[global.metric].info}>
+          <span className="yLabelText" title={metricInfo}>
             {global.scale === "log" ? "Log " : ""}
-            {items[global.metric].label}
+            {metricLabel}
           </span>{" "}
           <span className="yLabelArrow"></span>
         </div>
