@@ -73,7 +73,7 @@ const Header = () => {
         <a href=".">Languish</a>
       </h1>
       <h2>
-        <div title="Share of developers who pushed to a repository containing each language">
+        <div title="Developers pushing to repositories in each language, from GitHub Innovation Graph">
           Programming Language Trends
         </div>
         <div>

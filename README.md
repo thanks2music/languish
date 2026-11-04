@@ -6,18 +6,20 @@ This is a fork of [tjpalmer/languish](https://github.com/tjpalmer/languish). The
 
 ## Why this fork changed data sources
 
-- **GH Archive**, which upstream used for GitHub stars, pull requests, and issues, has been losing events since 2025-05-24, and by 2026 it captures only a fraction of public activity (see [igrigorik/gharchive.org#320](https://github.com/igrigorik/gharchive.org/issues/320) and [#326](https://github.com/igrigorik/gharchive.org/issues/326)).
+- **GH Archive**, which upstream used for GitHub stars, pull requests, and issues, has been losing events since late May 2025, and by 2026 it captures only a fraction of public activity (see [igrigorik/gharchive.org#310](https://github.com/igrigorik/gharchive.org/issues/310), [#320](https://github.com/igrigorik/gharchive.org/issues/320), and [#326](https://github.com/igrigorik/gharchive.org/issues/326)).
 - **Stack Overflow** now gets only about a thousand new questions a month, so its tag counts no longer reflect language use.
 
 ## The metric
 
-The y axis is **GitHub Pushers**: each language's share of the quarter's total, where a language's count is the number of unique developers who made at least one `git push` to a public repository containing that language ([datasheet](https://github.com/github/innovationgraph/blob/main/docs/datasheet.md)). Counts are summed over all economies in `data/languages.csv`. Only languages that GitHub Linguist classifies as `programming` or `markup` are included.
+The y axis is **GitHub Pushers**. A language's count is the number of unique developers who made at least one `git push` to a public repository containing that language ([datasheet](https://github.com/github/innovationgraph/blob/main/docs/datasheet.md)), summed over the economies in `data/languages.csv`. The `EU` rows are left out because each one is the sum of the 27 member states, which are also listed. Only languages classified as `programming` or `markup` are included.
+
+The plotted value is each language's count as a percentage of all languages' counts that quarter. A developer who pushes to repositories in several languages is counted once for each, so the denominator is not the number of developers.
 
 Read it with these caveats:
 
 - A repository counts for **every** language it contains, not just its main one. Languages common in supporting files, such as HTML, CSS, Shell, Dockerfile, and Makefile, rank high, and JavaScript ranks above TypeScript. Rankings by contributors, such as [GitHub Octoverse](https://github.blog/news-insights/octoverse/), can differ.
 - Data starts in **2020Q1**. Earlier quarters are not available.
-- GitHub withholds figures for economies with fewer than 100 developers in a quarter, so totals slightly undercount.
+- GitHub withholds a figure when fewer than 100 developers in an economy pushed to that language in the quarter, so small languages are undercounted the most.
 - New quarters are published about four months after the quarter ends.
 
 ## Updating the data
