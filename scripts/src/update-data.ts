@@ -4,6 +4,8 @@
 // Source: https://github.com/github/innovationgraph (CC0-1.0)
 // Metric: the number of unique developers who pushed at least once to a
 // repository containing the language, summed over all reported economies.
+// The "EU" rows are skipped: each one equals the sum of the 27 member states
+// that are also listed, so including it would count those developers twice.
 //
 // Usage: bun run update-data
 
@@ -14,6 +16,7 @@ const sourceUrl =
   "https://raw.githubusercontent.com/github/innovationgraph/main/data/languages.csv";
 const outputPath = join(import.meta.dir, "../data/gh-pushers.json");
 const includedTypes = new Set(["programming", "markup"]);
+const aggregateEconomies = new Set(["EU"]);
 const expectedHeader =
   "num_pushers,language,language_type,iso2_code,year,quarter";
 
@@ -35,8 +38,8 @@ export function aggregate(csv: string): Count[] {
     if (fields.length !== 6) {
       throw new Error(`Unexpected CSV row: ${line}`);
     }
-    const [pushers, name, type, , year, quarter] = fields;
-    if (!includedTypes.has(type)) continue;
+    const [pushers, name, type, economy, year, quarter] = fields;
+    if (!includedTypes.has(type) || aggregateEconomies.has(economy)) continue;
     const key = `${name}\t${year}\t${quarter}`;
     let total = totals.get(key);
     if (!total) {
