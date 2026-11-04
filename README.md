@@ -1,13 +1,13 @@
 # Languish &mdash; Programming Language Trends
 
 > "…the game of basketball evolves, and the game of basketball changes, and you have to be able to see the table turn, and you have to be able to evolve with it…"
-> — LeBron James, *Mind the Game* podcast (2026)
+> — LeBron James, [*Mind the Game*](https://www.youtube.com/watch?v=WQ34GWXGjOI) podcast (2026)
 
 **Live site:** https://thanks2music.github.io/languish/
 
-Like [npm trends](https://npmtrends.com/), but for programming languages. Pick a few languages, stack their lines, and see who is rising and who is quietly packing up.
+Like [npm trends](https://npmtrends.com/), but for programming languages. Pick a few languages, compare their lines, and see who is rising and who is quietly packing up.
 
-![Languish showing each language's share of GitHub pushers from 2020 to 2026Q2](docs/screenshot.png)
+![Languish chart comparing each language's share of GitHub pushers over time](docs/screenshot.png)
 
 This is a fork of [tjpalmer/languish](https://github.com/tjpalmer/languish). The original stopped at 2025Q2 when its data sources ran dry, so this fork switched to official GitHub data from the [GitHub Innovation Graph](https://github.com/github/innovationgraph) and checks for new data every month.
 
@@ -16,11 +16,11 @@ This is a fork of [tjpalmer/languish](https://github.com/tjpalmer/languish). The
 - Compare any languages over time, from 2020Q1 to the latest quarter
 - Switch the y axis between linear and log
 - Share a permalink to your selection
-- Jump to GitHub topics and trending repositories for each language
+- Jump to a Google search, GitHub topics, and trending repositories for each language
 
 ## What the chart shows
 
-The y axis is **GitHub Pushers**: for each quarter, the number of developers who pushed to a public repository containing a language, as a percentage of all languages' counts that quarter.
+The y axis is **GitHub Pushers**: for each quarter, the number of developers who pushed to a public repository containing a language, as a percentage of all languages' counts that quarter. Only languages that GitHub classifies as `programming` or `markup` are included, so data and prose formats such as JSON and Markdown are left out.
 
 **Why are HTML and CSS still on the chart?** Because hiding them would mean picking winners by hand. A repository counts for every language in it, not just its main one, and almost every repository carries a little HTML or CSS, so they top the chart. Shell and Dockerfile rank high for the same reason, and JavaScript ranks above TypeScript. We'd rather show the honest standings than fix the game. Rankings by contributors, such as [GitHub Octoverse](https://github.blog/news-insights/octoverse/), can differ.
 
