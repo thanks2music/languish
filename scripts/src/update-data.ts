@@ -43,10 +43,13 @@ export function aggregate(csv: string): Count[] {
     const key = `${name}\t${year}\t${quarter}`;
     let total = totals.get(key);
     if (!total) {
-      total = { name, year: Number(year), quarter: Number(quarter), count: 0 };
+      total = { name, year: toInt(year), quarter: toInt(quarter), count: 0 };
       totals.set(key, total);
     }
-    total.count += Number(pushers);
+    total.count += toInt(pushers);
+  }
+  if (!totals.size) {
+    throw new Error("No rows left after filtering");
   }
   return [...totals.values()].sort(
     (a, b) =>
@@ -55,6 +58,13 @@ export function aggregate(csv: string): Count[] {
       b.count - a.count ||
       a.name.localeCompare(b.name)
   );
+}
+
+function toInt(text: string): number {
+  if (!/^\d+$/.test(text)) {
+    throw new Error(`Expected a non-negative integer, got "${text}"`);
+  }
+  return Number(text);
 }
 
 // Language names can contain commas (none do today, but quoting is legal).
