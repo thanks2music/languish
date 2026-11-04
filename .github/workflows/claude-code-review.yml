@@ -1,7 +1,7 @@
 name: Claude Code Review
 
-# 自由文プロンプト方式 (本スキルの正本)。日本語で、push のたびにレビューする。
-# 公式 plugin 方式 (英語・高確度の指摘のみ・PR ごとに 1 回) は claude-code-review-plugin.yml を参照。
+# Reviews each pull request in Japanese with anthropics/claude-code-action and
+# posts the findings as PR comments.
 
 on:
   pull_request:
