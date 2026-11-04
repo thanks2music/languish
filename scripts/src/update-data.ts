@@ -14,7 +14,8 @@ const sourceUrl =
   "https://raw.githubusercontent.com/github/innovationgraph/main/data/languages.csv";
 const outputPath = join(import.meta.dir, "../data/gh-pushers.json");
 const includedTypes = new Set(["programming", "markup"]);
-const expectedHeader = "num_pushers,language,language_type,iso2_code,year,quarter";
+const expectedHeader =
+  "num_pushers,language,language_type,iso2_code,year,quarter";
 
 export interface Count {
   name: string;
@@ -46,7 +47,9 @@ export function aggregate(csv: string): Count[] {
   }
   return [...totals.values()].sort(
     (a, b) =>
-      a.year - b.year || a.quarter - b.quarter || b.count - a.count ||
+      a.year - b.year ||
+      a.quarter - b.quarter ||
+      b.count - a.count ||
       a.name.localeCompare(b.name)
   );
 }

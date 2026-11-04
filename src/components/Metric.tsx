@@ -14,8 +14,7 @@ const Metric = () => {
   const items: { [k in keyof Metrics]: MetricItem } = {
     pushers: {
       label: "GitHub Pushers",
-      info:
-        "Share of developers who pushed to a repository containing the language (GitHub Innovation Graph)",
+      info: "Share of developers who pushed to a repository containing the language (GitHub Innovation Graph)",
     },
   };
 
